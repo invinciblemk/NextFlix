@@ -21,278 +21,25 @@ DB_PATH = 'movies.db' if os.path.exists('movies.db') else '/Users/invincibleMK/D
 CSV_PATH = 'FavMovies.csv' if os.path.exists('FavMovies.csv') else '/Users/invincibleMK/Documents/cinema/FavMovies.csv'
 LOGO_PATH = 'NextFlix_logo.png' if os.path.exists('NextFlix_logo.png') else '/Users/invincibleMK/Documents/cinema/NextFlix_logo.png'
 
-# Netflix-style CSS
+# Minimal CSS to ensure sidebar works
 def load_css():
     st.markdown("""
     <style>
-    /* Netflix-style CSS with Netflix Red theme */
-    .main-header {
-        background: linear-gradient(135deg, #E50914 0%, #B81D13 100%);
-        padding: 3rem 0;
-        margin-bottom: 2rem;
-        border-radius: 15px;
-        box-shadow: 0 8px 32px rgba(229, 9, 20, 0.3);
-        border: 2px solid rgba(255, 255, 255, 0.1);
+    /* Minimal CSS - just ensure sidebar is visible */
+    .sidebar {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
     
-    .logo-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 0;
-        padding: 1rem 0;
-    }
-    
-    @keyframes logoGlow {
-        0% {
-            text-shadow: 4px 4px 8px rgba(0,0,0,0.9), 0 0 25px rgba(229, 9, 20, 0.6);
-        }
-        100% {
-            text-shadow: 4px 4px 8px rgba(0,0,0,0.9), 0 0 35px rgba(229, 9, 20, 0.9);
-        }
-    }
-    
-    /* Netflix-style font rendering */
-    .netflix-logo {
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        font-smooth: always;
-        text-rendering: optimizeLegibility;
-    }
-    
-    .logo {
-        max-height: 200px;
-        width: auto;
-        min-height: 120px;
-        object-fit: contain;
-        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-        transition: transform 0.3s ease;
-    }
-    
-    .logo:hover {
-        transform: scale(1.05);
-    }
-    
-    .netflix-red {
-        color: #E50914;
-    }
-    
-    .netflix-dark {
-        background-color: #E50914;
-        color: #FFFFFF;
-    }
-    
-    /* Main page background - Netflix Red instead of black */
-    .main .block-container {
-        background: linear-gradient(135deg, #E50914 0%, #B81D13 100%);
-        padding: 1rem;
-        border-radius: 10px;
-    }
-    
-    .stApp {
-        background: linear-gradient(135deg, #E50914 0%, #B81D13 100%);
-    }
-    
-    .movie-card {
-        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-        border-radius: 10px;
-        padding: 1rem;
-        margin: 0.5rem 0;
-        border-left: 4px solid #E50914;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    }
-    
-    .search-container {
-        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin: 1rem 0;
-        border: 1px solid #333;
-    }
-    
-    .tab-container {
-        background: #141414;
-        border-radius: 10px;
-        padding: 1rem;
-    }
-    
-    /* Left sidebar styling */
     .sidebar .sidebar-content {
-        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-        border-right: 3px solid #E50914;
-        padding: 1rem;
+        display: block !important;
+        visibility: visible !important;
     }
     
-    .sidebar .stRadio > div {
-        background-color: transparent;
-    }
-    
-    .sidebar .stRadio > div > label {
-        color: #FFFFFF;
-        font-weight: 500;
-    }
-    
-    .sidebar .stRadio > div > label > div[data-testid="stMarkdownContainer"] {
-        color: #FFFFFF;
-    }
-    
-    .sidebar .stSelectbox > div > div {
-        background-color: #2d2d2d;
-        color: #FFFFFF;
-    }
-    
-    .sidebar .stTextInput > div > div > input {
-        background-color: #2d2d2d;
-        color: #FFFFFF;
-        border: 1px solid #555;
-    }
-    
-    .sidebar .stNumberInput > div > div > input {
-        background-color: #2d2d2d;
-        color: #FFFFFF;
-        border: 1px solid #555;
-    }
-    
-    /* Remove empty space in sidebar */
-    .sidebar .stRadio > div > div {
-        margin: 0.2rem 0;
-    }
-    
-    /* Hide Streamlit branding */
+    /* Hide only the menu, not the sidebar */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    header {visibility: hidden;}
-    
-    
-    /* Remove empty bars and improve spacing */
-    .stApp > div {
-        padding-top: 0;
-    }
-    
-    .main .block-container {
-        padding-top: 1rem;
-        padding-bottom: 1rem;
-        max-width: 100%;
-    }
-    
-    /* Make the main header more prominent */
-    .main-header {
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .main-header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
-        animation: shimmer 3s ease-in-out infinite;
-    }
-    
-    @keyframes shimmer {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(100%); }
-    }
-    
-    /* Improve sidebar spacing */
-    .sidebar .element-container {
-        margin-bottom: 0.5rem;
-    }
-    
-    /* Remove default Streamlit spacing */
-    .stApp > header {
-        display: none;
-    }
-    
-    .stApp > div[data-testid="stToolbar"] {
-        display: none;
-    }
-    
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 2px;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        background-color: #2d2d2d;
-        color: #FFFFFF;
-        border-radius: 5px 5px 0 0;
-        padding: 0.5rem 1rem;
-        margin-right: 2px;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background-color: #E50914;
-        color: #FFFFFF;
-    }
-    
-    .stButton > button {
-        background: linear-gradient(135deg, #E50914 0%, #B81D13 100%);
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 0.5rem 1rem;
-        font-weight: bold;
-        transition: all 0.3s ease;
-    }
-    
-    .stButton > button:hover {
-        background: linear-gradient(135deg, #B81D13 0%, #E50914 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(229, 9, 20, 0.3);
-    }
-    
-    .stSelectbox > div > div {
-        background-color: #2d2d2d;
-        color: #FFFFFF;
-    }
-    
-    .stTextInput > div > div > input {
-        background-color: #2d2d2d;
-        color: #FFFFFF;
-        border: 1px solid #555;
-    }
-    
-    .stNumberInput > div > div > input {
-        background-color: #2d2d2d;
-        color: #FFFFFF;
-        border: 1px solid #555;
-    }
-    
-    .metric-card {
-        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-        border-radius: 10px;
-        padding: 1rem;
-        margin: 0.5rem 0;
-        border-left: 4px solid #E50914;
-    }
-    
-    .success-message {
-        background: linear-gradient(135deg, #00C851 0%, #007E33 100%);
-        color: white;
-        padding: 1rem;
-        border-radius: 10px;
-        margin: 1rem 0;
-    }
-    
-    .error-message {
-        background: linear-gradient(135deg, #FF4444 0%, #CC0000 100%);
-        color: white;
-        padding: 1rem;
-        border-radius: 10px;
-        margin: 1rem 0;
-    }
-    
-    .edit-form {
-        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin: 1rem 0;
-        border: 1px solid #333;
-    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -382,29 +129,7 @@ def display_logo():
 # Load CSS and display logo
 load_css()
 
-# Initialize sidebar state
-if 'sidebar_visible' not in st.session_state:
-    st.session_state.sidebar_visible = True
-
-# Add sidebar toggle button with better styling
-st.markdown("""
-<div style="
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-    border-radius: 10px;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    border: 1px solid #333;
-    text-align: center;
-">
-""", unsafe_allow_html=True)
-
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    if st.button("📱 Toggle Sidebar", help="Show/Hide the navigation sidebar", type="primary"):
-        st.session_state.sidebar_visible = not st.session_state.sidebar_visible
-        st.rerun()
-
-st.markdown("</div>", unsafe_allow_html=True)
+# Remove toggle functionality - make sidebar static
 
 st.markdown('<div class="main-header">', unsafe_allow_html=True)
 display_logo()
@@ -1451,7 +1176,7 @@ def edit_movie_in_csv(movie_name, movie_year, new_data):
 # Initialize database if needed
 init_database()
 
-# Sidebar for navigation - always show sidebar but conditionally hide with CSS
+# Static sidebar for navigation
 with st.sidebar:
     st.markdown("""
     <div style="text-align: center; margin-bottom: 1rem;">
@@ -1484,59 +1209,6 @@ with st.sidebar:
     watch_region_code = next((code for code, name in COUNTRY_MAP.items() if name == watch_region_name), 'US')
     st.session_state['watch_region'] = watch_region_code
     WATCH_PROVIDERS = get_watch_providers(watch_region_code)
-
-# Add CSS to hide sidebar when needed
-if not st.session_state.sidebar_visible:
-    st.markdown("""
-    <style>
-    .sidebar {
-        display: none !important;
-    }
-    .main {
-        margin-left: 0 !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    # Show navigation in main area when sidebar is hidden
-    st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-        border-radius: 10px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border: 1px solid #333;
-    ">
-        <h3 style="
-            color: #E50914; 
-            margin: 0 0 1rem 0; 
-            font-size: 1.5rem; 
-            font-weight: 900;
-            text-align: center;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-        ">🎬 NEXTFLICK - Movie Database</h3>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Navigation menu in main area
-    page = st.radio(
-        "Navigate to:",
-        ["🎬 My Collection", "🔍 Search My Movies", "📊 Rating Analysis", "🌐 Discover Movies", "💡 Recommendations", "➕ Add Movie", "✏️ Edit Movies", "📄 CSV Management"],
-        key="navigation_main",
-        horizontal=True
-    )
-    
-    # Global region selection for watch providers
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        st.markdown("**🌍 Watch Region:**")
-    with col2:
-        watch_region_name = st.selectbox("Watch Region", list(COUNTRY_MAP.values()), index=0, key="watch_region_select_main", label_visibility="collapsed")
-    watch_region_code = next((code for code, name in COUNTRY_MAP.items() if name == watch_region_name), 'US')
-    st.session_state['watch_region'] = watch_region_code
-    WATCH_PROVIDERS = get_watch_providers(watch_region_code)
-    
-    st.markdown("---")
 
 # Main content area
 if page == "🎬 My Collection":
