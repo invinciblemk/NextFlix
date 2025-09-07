@@ -1,0 +1,7 @@
+streamlit
+pandas
+requests
+fuzzywuzzy
+python-levenshtein
+st-aggrid
+psycopg2-binary

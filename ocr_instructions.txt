@@ -1,0 +1,36 @@
+
+    TESSERACT INSTALLATION INSTRUCTIONS:
+    ====================================
+    
+    To extract text from images, you need to install Tesseract OCR:
+    
+    1. Install Homebrew (if not already installed):
+       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    
+    2. Install Tesseract:
+       brew install tesseract
+    
+    3. Verify installation:
+       tesseract --version
+    
+    4. Run the formula extraction script:
+       python extract_formula.py
+    
+    ALTERNATIVE METHODS:
+    ===================
+    
+    1. Use online OCR services:
+       - Google Drive (upload image, right-click, "Open with Google Docs")
+       - Adobe Acrobat online
+       - Mathpix (specialized for math formulas)
+    
+    2. Use mobile apps:
+       - Google Lens
+       - Microsoft Office Lens
+       - Adobe Scan
+    
+    3. Use Python with other OCR libraries:
+       - EasyOCR
+       - PaddleOCR
+       - TrOCR (Hugging Face)
+    
