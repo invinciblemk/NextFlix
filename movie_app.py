@@ -164,6 +164,7 @@ def load_css():
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
+    
     /* Remove empty bars and improve spacing */
     .stApp > div {
         padding-top: 0;
@@ -380,6 +381,31 @@ def display_logo():
 
 # Load CSS and display logo
 load_css()
+
+# Initialize sidebar state
+if 'sidebar_visible' not in st.session_state:
+    st.session_state.sidebar_visible = True
+
+# Add sidebar toggle button with better styling
+st.markdown("""
+<div style="
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border-radius: 10px;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #333;
+    text-align: center;
+">
+""", unsafe_allow_html=True)
+
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    if st.button("📱 Toggle Sidebar", help="Show/Hide the navigation sidebar", type="primary"):
+        st.session_state.sidebar_visible = not st.session_state.sidebar_visible
+        st.rerun()
+
+st.markdown("</div>", unsafe_allow_html=True)
+
 st.markdown('<div class="main-header">', unsafe_allow_html=True)
 display_logo()
 st.markdown('</div>', unsafe_allow_html=True)
@@ -923,11 +949,13 @@ def search_external_movies(query=None, min_year=None, max_year=None, genre_id=No
             omdb_data = omdb_response.json() if omdb_response.json().get('Response') == 'True' else {}
             imdb_val = omdb_data.get('imdbRating', 'N/A')
             imdb_rating = float(imdb_val) if imdb_val != 'N/A' and imdb_val is not None else None
+            imdb_id = omdb_data.get('imdbID', '')
             rt_rating = next((r['Value'] for r in omdb_data.get('Ratings', []) if r['Source'] == 'Rotten Tomatoes'), None)
             metacritic_val = next((r['Value'] for r in omdb_data.get('Ratings', []) if r['Source'] == 'Metacritic'), 'N/A')
             metacritic = int(metacritic_val.replace('/100', '')) if metacritic_val != 'N/A' and metacritic_val is not None else None
         else:
             imdb_rating = None
+            imdb_id = ''
             rt_rating = None
             metacritic = None
 
@@ -956,6 +984,7 @@ def search_external_movies(query=None, min_year=None, max_year=None, genre_id=No
             'Where to Watch': where_to_watch,
             'TMDB Rating': tmdb_rating,
             'IMDb Rating': imdb_rating,
+            'IMDb ID': imdb_id,
             'RT Rating': rt_rating,
             'Metacritic': metacritic,
             'Duration': duration_str,
@@ -980,8 +1009,11 @@ def get_watch_info(movie_id):
             base_link = data.get('link', '')
             for p in flatrate:
                 name = p['provider_name']
-                providers.append(f'<a href="{base_link}" target="_blank">{name}</a>')
-            return ' '.join(providers)
+                if base_link:
+                    providers.append(f'<a href="{base_link}" target="_blank" style="color: #E50914; text-decoration: none;">{name}</a>')
+                else:
+                    providers.append(name)
+            return ' | '.join(providers)
         return 'Not available in selected region'
     return 'N/A'
 
@@ -1419,7 +1451,7 @@ def edit_movie_in_csv(movie_name, movie_year, new_data):
 # Initialize database if needed
 init_database()
 
-# Sidebar for navigation
+# Sidebar for navigation - always show sidebar but conditionally hide with CSS
 with st.sidebar:
     st.markdown("""
     <div style="text-align: center; margin-bottom: 1rem;">
@@ -1452,6 +1484,59 @@ with st.sidebar:
     watch_region_code = next((code for code, name in COUNTRY_MAP.items() if name == watch_region_name), 'US')
     st.session_state['watch_region'] = watch_region_code
     WATCH_PROVIDERS = get_watch_providers(watch_region_code)
+
+# Add CSS to hide sidebar when needed
+if not st.session_state.sidebar_visible:
+    st.markdown("""
+    <style>
+    .sidebar {
+        display: none !important;
+    }
+    .main {
+        margin-left: 0 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Show navigation in main area when sidebar is hidden
+    st.markdown("""
+    <div style="
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid #333;
+    ">
+        <h3 style="
+            color: #E50914; 
+            margin: 0 0 1rem 0; 
+            font-size: 1.5rem; 
+            font-weight: 900;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        ">🎬 NEXTFLICK - Movie Database</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Navigation menu in main area
+    page = st.radio(
+        "Navigate to:",
+        ["🎬 My Collection", "🔍 Search My Movies", "📊 Rating Analysis", "🌐 Discover Movies", "💡 Recommendations", "➕ Add Movie", "✏️ Edit Movies", "📄 CSV Management"],
+        key="navigation_main",
+        horizontal=True
+    )
+    
+    # Global region selection for watch providers
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        st.markdown("**🌍 Watch Region:**")
+    with col2:
+        watch_region_name = st.selectbox("Watch Region", list(COUNTRY_MAP.values()), index=0, key="watch_region_select_main", label_visibility="collapsed")
+    watch_region_code = next((code for code, name in COUNTRY_MAP.items() if name == watch_region_name), 'US')
+    st.session_state['watch_region'] = watch_region_code
+    WATCH_PROVIDERS = get_watch_providers(watch_region_code)
+    
+    st.markdown("---")
 
 # Main content area
 if page == "🎬 My Collection":
@@ -1544,9 +1629,54 @@ elif page == "🌐 Discover Movies":
     ext_country_code = next((code for code, name in COUNTRY_MAP.items() if name == ext_country_name), None)
     
     if st.button("🔍 Search External Movies", type="primary"):
-        ext_df = search_external_movies(ext_query, ext_min_year, ext_max_year, ext_genre_id, ext_plot, ext_director, ext_actor, ext_composer, ext_writer, ext_watch_provider_id, ext_country_code)
+        with st.spinner("🔍 Searching external movie databases..."):
+            ext_df = search_external_movies(ext_query, ext_min_year, ext_max_year, ext_genre_id, ext_plot, ext_director, ext_actor, ext_composer, ext_writer, ext_watch_provider_id, ext_country_code)
+        
         if not ext_df.empty:
-            st.dataframe(ext_df, use_container_width=True)
+            st.success(f"✅ Found {len(ext_df)} movies!")
+            
+            # Display results with proper hyperlinks
+            for idx, row in ext_df.iterrows():
+                with st.expander(f"🎬 {row['Title']} ({row['Year']}) - ⭐ {row['TMDB Rating']}"):
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        st.write(f"**📅 Year:** {row['Year']}")
+                        st.write(f"**🎭 Genres:** {row['Genres']}")
+                        st.write(f"**🎬 Director:** {row['Director']}")
+                        st.write(f"**👤 Cast:** {row['Cast']}")
+                        st.write(f"**🎵 Composer:** {row['Composer']}")
+                        st.write(f"**✍️ Writer:** {row['Writer']}")
+                        st.write(f"**🎬 Producer:** {row['Producer']}")
+                        st.write(f"**🏢 Studio:** {row['Studio']}")
+                    
+                    with col2:
+                        st.write(f"**💰 Budget:** {row['Budget']}")
+                        st.write(f"**📈 Box Office:** {row['Box Office']}")
+                        st.write(f"**⏱️ Duration:** {row['Duration']}")
+                        st.write(f"**⭐ My Rating:** {row['My Rating']}")
+                        st.write(f"**⭐ TMDB Rating:** {row['TMDB Rating']}")
+                        st.write(f"**⭐ IMDb Rating:** {row['IMDb Rating']}")
+                        st.write(f"**🍅 RT Rating:** {row['RT Rating']}")
+                        st.write(f"**📊 Metacritic:** {row['Metacritic']}")
+                    
+                    st.write(f"**📝 Overview:** {row['Overview']}")
+                    
+                    # Hyperlinks
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        if row['TMDB Link'] != 'N/A':
+                            st.markdown(f"[🔗 View on TMDB]({row['TMDB Link']})")
+                    with col2:
+                        if row['Where to Watch'] != 'N/A' and row['Where to Watch'] != 'Not available in selected region':
+                            st.markdown(f"**📺 Where to Watch:** {row['Where to Watch']}", unsafe_allow_html=True)
+                        else:
+                            st.write(f"**📺 Where to Watch:** {row['Where to Watch']}")
+                    with col3:
+                        if row.get('IMDb ID') and row['IMDb ID'] != '':
+                            imdb_url = f"https://www.imdb.com/title/{row['IMDb ID']}"
+                            st.markdown(f"[🔗 View on IMDb]({imdb_url})")
+            
             csv = ext_df.to_csv(index=False).encode('utf-8')
             st.download_button("📥 Download External Results", csv, "external_movies.csv", "text/csv")
         else:
