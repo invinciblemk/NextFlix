@@ -28,21 +28,50 @@ def load_css():
     /* Netflix-style CSS with Netflix Red theme */
     .main-header {
         background: linear-gradient(135deg, #E50914 0%, #B81D13 100%);
-        padding: 1rem 0;
+        padding: 3rem 0;
         margin-bottom: 2rem;
-        border-radius: 10px;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(229, 9, 20, 0.3);
+        border: 2px solid rgba(255, 255, 255, 0.1);
     }
     
     .logo-container {
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        margin-bottom: 1rem;
+        margin-bottom: 0;
+        padding: 1rem 0;
+    }
+    
+    @keyframes logoGlow {
+        0% {
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.9), 0 0 25px rgba(229, 9, 20, 0.6);
+        }
+        100% {
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.9), 0 0 35px rgba(229, 9, 20, 0.9);
+        }
+    }
+    
+    /* Netflix-style font rendering */
+    .netflix-logo {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-smooth: always;
+        text-rendering: optimizeLegibility;
     }
     
     .logo {
-        max-height: 80px;
+        max-height: 200px;
         width: auto;
+        min-height: 120px;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        transition: transform 0.3s ease;
+    }
+    
+    .logo:hover {
+        transform: scale(1.05);
     }
     
     .netflix-red {
@@ -50,8 +79,19 @@ def load_css():
     }
     
     .netflix-dark {
-        background-color: #141414;
+        background-color: #E50914;
         color: #FFFFFF;
+    }
+    
+    /* Main page background - Netflix Red instead of black */
+    .main .block-container {
+        background: linear-gradient(135deg, #E50914 0%, #B81D13 100%);
+        padding: 1rem;
+        border-radius: 10px;
+    }
+    
+    .stApp {
+        background: linear-gradient(135deg, #E50914 0%, #B81D13 100%);
     }
     
     .movie-card {
@@ -75,6 +115,100 @@ def load_css():
         background: #141414;
         border-radius: 10px;
         padding: 1rem;
+    }
+    
+    /* Left sidebar styling */
+    .sidebar .sidebar-content {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        border-right: 3px solid #E50914;
+        padding: 1rem;
+    }
+    
+    .sidebar .stRadio > div {
+        background-color: transparent;
+    }
+    
+    .sidebar .stRadio > div > label {
+        color: #FFFFFF;
+        font-weight: 500;
+    }
+    
+    .sidebar .stRadio > div > label > div[data-testid="stMarkdownContainer"] {
+        color: #FFFFFF;
+    }
+    
+    .sidebar .stSelectbox > div > div {
+        background-color: #2d2d2d;
+        color: #FFFFFF;
+    }
+    
+    .sidebar .stTextInput > div > div > input {
+        background-color: #2d2d2d;
+        color: #FFFFFF;
+        border: 1px solid #555;
+    }
+    
+    .sidebar .stNumberInput > div > div > input {
+        background-color: #2d2d2d;
+        color: #FFFFFF;
+        border: 1px solid #555;
+    }
+    
+    /* Remove empty space in sidebar */
+    .sidebar .stRadio > div > div {
+        margin: 0.2rem 0;
+    }
+    
+    /* Hide Streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    /* Remove empty bars and improve spacing */
+    .stApp > div {
+        padding-top: 0;
+    }
+    
+    .main .block-container {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        max-width: 100%;
+    }
+    
+    /* Make the main header more prominent */
+    .main-header {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .main-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
+        animation: shimmer 3s ease-in-out infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    
+    /* Improve sidebar spacing */
+    .sidebar .element-container {
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Remove default Streamlit spacing */
+    .stApp > header {
+        display: none;
+    }
+    
+    .stApp > div[data-testid="stToolbar"] {
+        display: none;
     }
     
     .stTabs [data-baseweb="tab-list"] {
@@ -162,7 +296,7 @@ def load_css():
     """, unsafe_allow_html=True)
 
 def display_logo():
-    """Display the NextFlix logo"""
+    """Display the NextFlix logo using the image file"""
     try:
         if os.path.exists(LOGO_PATH):
             with open(LOGO_PATH, "rb") as f:
@@ -171,18 +305,76 @@ def display_logo():
                 st.markdown(f"""
                 <div class="logo-container">
                     <img src="data:image/png;base64,{logo_base64}" class="logo" alt="NextFlix Logo">
+                    <p style="
+                        color: #FFFFFF;
+                        font-size: 1.3rem;
+                        margin: 0.5rem 0 0 0;
+                        font-weight: 300;
+                        text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+                        letter-spacing: 1px;
+                    ">Your Personal Movie Database</p>
                 </div>
                 """, unsafe_allow_html=True)
         else:
+            # Fallback to text logo if image not found
             st.markdown("""
             <div class="logo-container">
-                <h1 class="netflix-red" style="font-size: 3rem; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">NEXTFLIX</h1>
+                <h1 class="netflix-logo" style="
+                    font-size: 5rem; 
+                    font-weight: 900; 
+                    color: #E50914;
+                    text-shadow: 4px 4px 8px rgba(0,0,0,0.9);
+                    margin: 0;
+                    padding: 0;
+                    letter-spacing: -3px;
+                    font-family: 'Helvetica Neue', 'Arial Black', 'Impact', 'Franklin Gothic Heavy', Arial, sans-serif;
+                    background: linear-gradient(45deg, #E50914, #FF6B6B, #E50914);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                    animation: logoGlow 2s ease-in-out infinite alternate;
+                    transform: perspective(500px) rotateX(5deg);
+                    text-transform: uppercase;
+                ">NEXTFLICK</h1>
+                <p style="
+                    color: #FFFFFF;
+                    font-size: 1.3rem;
+                    margin: 0.5rem 0 0 0;
+                    font-weight: 300;
+                    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+                    letter-spacing: 1px;
+                ">Your Personal Movie Database</p>
             </div>
             """, unsafe_allow_html=True)
     except Exception as e:
+        # Fallback to text logo if any error occurs
         st.markdown("""
         <div class="logo-container">
-            <h1 class="netflix-red" style="font-size: 3rem; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">NEXTFLIX</h1>
+            <h1 class="netflix-logo" style="
+                font-size: 5rem; 
+                font-weight: 900; 
+                color: #E50914;
+                text-shadow: 4px 4px 8px rgba(0,0,0,0.9);
+                margin: 0;
+                padding: 0;
+                letter-spacing: -3px;
+                font-family: 'Helvetica Neue', 'Arial Black', 'Impact', 'Franklin Gothic Heavy', Arial, sans-serif;
+                background: linear-gradient(45deg, #E50914, #FF6B6B, #E50914);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                animation: logoGlow 2s ease-in-out infinite alternate;
+                transform: perspective(500px) rotateX(5deg);
+                text-transform: uppercase;
+            ">NEXTFLICK</h1>
+            <p style="
+                color: #FFFFFF;
+                font-size: 1.3rem;
+                margin: 0.5rem 0 0 0;
+                font-weight: 300;
+                text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+                letter-spacing: 1px;
+            ">Your Personal Movie Database</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -360,16 +552,53 @@ def compare_ratings():
 def get_person_id(name, role=None):
     if not name:
         return None
+    
+    # Try multiple search strategies for better partial matching
+    search_terms = [name]
+    
+    # Add individual words for partial matching
+    words = name.split()
+    if len(words) > 1:
+        # Add first name only
+        search_terms.append(words[0])
+        # Add last name only
+        search_terms.append(words[-1])
+        # Add first two words if more than 2 words
+        if len(words) > 2:
+            search_terms.append(' '.join(words[:2]))
+    
     search_url = f"{TMDB_BASE_URL}/search/person"
-    params = {
-        'api_key': TMDB_API_KEY,
-        'query': name
-    }
-    response = requests.get(search_url, params=params)
-    if response.status_code == 200:
-        results = response.json().get('results', [])
-        if results:
-            return results[0]['id']
+    
+    for term in search_terms:
+        params = {
+            'api_key': TMDB_API_KEY,
+            'query': term
+        }
+        response = requests.get(search_url, params=params)
+        if response.status_code == 200:
+            results = response.json().get('results', [])
+            if results:
+                # Try to find the best match using fuzzy matching
+                name_lower = name.lower()
+                best_match = None
+                best_score = 0
+                
+                for person in results[:10]:  # Check top 10 results
+                    person_name = person.get('name', '').lower()
+                    # Simple fuzzy matching - check if search term appears in person name
+                    if name_lower in person_name or any(word in person_name for word in name_lower.split() if len(word) > 2):
+                        # Calculate a simple score based on name similarity
+                        score = len(set(name_lower.split()) & set(person_name.split()))
+                        if score > best_score:
+                            best_score = score
+                            best_match = person
+                
+                if best_match:
+                    return best_match['id']
+                else:
+                    # Fallback to first result if no good match found
+                    return results[0]['id']
+    
     return None
 
 # FIXED: Enhanced external search with better filtering
@@ -429,54 +658,218 @@ def search_external_movies(query=None, min_year=None, max_year=None, genre_id=No
         if act_id:
             discover_params['with_cast'] = str(act_id)
     
-    # For text-based searches, use search endpoint
+    # For text-based searches, use search endpoint with improved partial matching
     if query or plot_keywords:
         search_url = f"{TMDB_BASE_URL}/search/movie"
-        search_params = {
-            'api_key': TMDB_API_KEY,
-            'query': f"{query} {plot_keywords}" if plot_keywords else query,
-            'page': 1
-        }
-        response = requests.get(search_url, params=search_params)
-        if response.status_code == 200:
-            results = response.json().get('results', [])
-            # Apply additional filters client-side
-            filtered_results = []
-            for movie in results:
-                # Check year range
-                release_year = int(movie['release_date'][:4]) if movie.get('release_date') and movie['release_date'] else None
-                if release_year:
-                    if min_year and release_year < min_year:
-                        continue
-                    if max_year and release_year > max_year:
-                        continue
+        # Create comprehensive search terms for partial matching
+        search_terms = []
+        
+        # Add original terms
+        if query:
+            search_terms.append(query)
+        if plot_keywords:
+            search_terms.append(plot_keywords)
+        
+        # Add individual words for partial matching
+        all_text = f"{query or ''} {plot_keywords or ''}".strip()
+        if all_text:
+            words = all_text.split()
+            # Add each word individually for partial matching
+            for word in words:
+                if len(word) > 1:  # Include words longer than 1 character for better partial matching
+                    search_terms.append(word)
+            
+            # Add partial word combinations (for cases like "Father" finding "Father of the Bride")
+            for i in range(len(words)):
+                for j in range(i+1, min(i+4, len(words)+1)):  # 2-4 word combinations
+                    partial_phrase = ' '.join(words[i:j])
+                    if len(partial_phrase) > 2:
+                        search_terms.append(partial_phrase)
+            
+            # Add partial word matches (for cases like "Spiel" finding "Spielberg")
+            for word in words:
+                if len(word) > 3:
+                    # Add first 3-4 characters for partial matching
+                    for i in range(3, min(len(word), 5)):
+                        partial_word = word[:i]
+                        search_terms.append(partial_word)
+        
+        all_results = []
+        # Search for each term separately to get better partial matches
+        for term in search_terms:
+            search_params = {
+                'api_key': TMDB_API_KEY,
+                'query': term,
+                'page': 1
+            }
+            response = requests.get(search_url, params=search_params)
+            if response.status_code == 200:
+                term_results = response.json().get('results', [])
+                all_results.extend(term_results)
+        
+        # Remove duplicates and apply client-side partial matching
+        seen_ids = set()
+        results = []
+        search_text_lower = all_text.lower()
+        
+        for movie in all_results:
+            if movie['id'] not in seen_ids:
+                # Check if the search terms appear in title or overview (case-insensitive)
+                title_lower = movie.get('title', '').lower()
+                overview_lower = movie.get('overview', '').lower()
                 
-                # Check genre
-                if genre_id and genre_id not in movie.get('genre_ids', []):
+                # Check if any search term appears in title or overview
+                matches = False
+                for word in search_text_lower.split():
+                    if len(word) > 1:  # Check words longer than 1 character
+                        if word in title_lower or word in overview_lower:
+                            matches = True
+                            break
+                
+                # Also check if the full search text appears as a substring
+                if not matches and len(search_text_lower) > 2:
+                    if search_text_lower in title_lower or search_text_lower in overview_lower:
+                        matches = True
+                
+                # Check for partial word matches (e.g., "Spiel" matches "Spielberg")
+                if not matches:
+                    for word in search_text_lower.split():
+                        if len(word) > 3:
+                            # Check if any word in title/overview starts with our search word
+                            for title_word in title_lower.split():
+                                if title_word.startswith(word):
+                                    matches = True
+                                    break
+                            if matches:
+                                break
+                
+                # Include the movie if it matches or if we don't have specific search terms
+                if matches or not search_text_lower.strip():
+                    seen_ids.add(movie['id'])
+                    results.append(movie)
+        
+        # Apply additional filters client-side
+        filtered_results = []
+        for movie in results:
+            # Check year range
+            release_year = int(movie['release_date'][:4]) if movie.get('release_date') and movie['release_date'] else None
+            if release_year:
+                if min_year and release_year < min_year:
                     continue
-                
-                # Check watch provider
-                if watch_provider_id:
-                    watch_info = get_watch_info(movie['id'])
-                    if WATCH_PROVIDERS.get(watch_provider_id, '') not in watch_info:
+                if max_year and release_year > max_year:
+                    continue
+            
+            # Check genre
+            if genre_id and genre_id not in movie.get('genre_ids', []):
+                continue
+            
+            # Check watch provider
+            if watch_provider_id:
+                watch_info = get_watch_info(movie['id'])
+                if WATCH_PROVIDERS.get(watch_provider_id, '') not in watch_info:
+                    continue
+            
+            # Check country
+            if country_code:
+                details_response = requests.get(f"{TMDB_BASE_URL}/movie/{movie['id']}", params={'api_key': TMDB_API_KEY})
+                if details_response.status_code == 200:
+                    details = details_response.json()
+                    countries = [c['iso_3166_1'] for c in details.get('production_countries', [])]
+                    if country_code not in countries:
                         continue
-                
-                # Check country
-                if country_code:
-                    details_response = requests.get(f"{TMDB_BASE_URL}/movie/{movie['id']}", params={'api_key': TMDB_API_KEY})
-                    if details_response.status_code == 200:
-                        details = details_response.json()
-                        countries = [c['iso_3166_1'] for c in details.get('production_countries', [])]
-                        if country_code not in countries:
-                            continue
-                
-                filtered_results.append(movie)
-            results = filtered_results
+            
+            # Check role-specific filters (director, actor, composer, writer)
+            if director or actor or composer or writer:
+                credits_response = requests.get(f"{TMDB_BASE_URL}/movie/{movie['id']}/credits", params={'api_key': TMDB_API_KEY})
+                if credits_response.status_code == 200:
+                    credits = credits_response.json()
+                    
+                    # Check director
+                    if director:
+                        dir_id = get_person_id(director, 'director')
+                        if dir_id:
+                            directors = [crew['id'] for crew in credits.get('crew', []) if crew.get('job') == 'Director']
+                            if dir_id not in directors:
+                                continue
+                    
+                    # Check actor
+                    if actor:
+                        act_id = get_person_id(actor, 'actor')
+                        if act_id:
+                            actors = [cast['id'] for cast in credits.get('cast', [])]
+                            if act_id not in actors:
+                                continue
+                    
+                    # Check composer
+                    if composer:
+                        comp_id = get_person_id(composer, 'composer')
+                        if comp_id:
+                            composers = [crew['id'] for crew in credits.get('crew', []) if crew.get('job') in ['Original Music Composer', 'Music', 'Composer']]
+                            if comp_id not in composers:
+                                continue
+                    
+                    # Check writer
+                    if writer:
+                        writ_id = get_person_id(writer, 'writer')
+                        if writ_id:
+                            writers = [crew['id'] for crew in credits.get('crew', []) if crew.get('job') in ['Writer', 'Screenplay', 'Story', 'Novel']]
+                            if writ_id not in writers:
+                                continue
+                else:
+                    # If we can't fetch credits, skip this movie for role-based searches
+                    if director or actor or composer or writer:
+                        continue
+            
+            filtered_results.append(movie)
+        results = filtered_results
     else:
         # Use discover endpoint for non-text searches
         response = requests.get(discover_url, params=discover_params)
         if response.status_code == 200:
             results = response.json().get('results', [])
+            
+            # Apply role-specific filtering for discover endpoint results
+            if director or actor or composer or writer:
+                filtered_results = []
+                for movie in results:
+                    credits_response = requests.get(f"{TMDB_BASE_URL}/movie/{movie['id']}/credits", params={'api_key': TMDB_API_KEY})
+                    if credits_response.status_code == 200:
+                        credits = credits_response.json()
+                        
+                        # Check director
+                        if director:
+                            dir_id = get_person_id(director, 'director')
+                            if dir_id:
+                                directors = [crew['id'] for crew in credits.get('crew', []) if crew.get('job') == 'Director']
+                                if dir_id not in directors:
+                                    continue
+                        
+                        # Check actor
+                        if actor:
+                            act_id = get_person_id(actor, 'actor')
+                            if act_id:
+                                actors = [cast['id'] for cast in credits.get('cast', [])]
+                                if act_id not in actors:
+                                    continue
+                        
+                        # Check composer
+                        if composer:
+                            comp_id = get_person_id(composer, 'composer')
+                            if comp_id:
+                                composers = [crew['id'] for crew in credits.get('crew', []) if crew.get('job') in ['Original Music Composer', 'Music', 'Composer']]
+                                if comp_id not in composers:
+                                    continue
+                        
+                        # Check writer
+                        if writer:
+                            writ_id = get_person_id(writer, 'writer')
+                            if writ_id:
+                                writers = [crew['id'] for crew in credits.get('crew', []) if crew.get('job') in ['Writer', 'Screenplay', 'Story', 'Novel']]
+                                if writ_id not in writers:
+                                    continue
+                        
+                        filtered_results.append(movie)
+                results = filtered_results
     
     if response.status_code != 200:
         st.error(f"TMDB API error: {response.status_code} - {response.text}")
@@ -593,7 +986,131 @@ def get_watch_info(movie_id):
     return 'N/A'
 
 # ENHANCED: More filters for movie recommendations
-def get_recommended_movies(min_rating=3.5, num_recs=5, genre_filter=None, year_filter=None, min_tmdb_rating=None):
+def get_tmdb_similar_movies(movie_id, num_recs=5):
+    """Get similar movies from TMDB API"""
+    similar_url = f"{TMDB_BASE_URL}/movie/{movie_id}/similar"
+    params = {
+        'api_key': TMDB_API_KEY,
+        'page': 1
+    }
+    response = requests.get(similar_url, params=params)
+    if response.status_code == 200:
+        results = response.json().get('results', [])[:num_recs]
+        return results
+    return []
+
+def get_tmdb_recommendations(movie_id, num_recs=5):
+    """Get recommendations from TMDB API"""
+    rec_url = f"{TMDB_BASE_URL}/movie/{movie_id}/recommendations"
+    params = {
+        'api_key': TMDB_API_KEY,
+        'page': 1
+    }
+    response = requests.get(rec_url, params=params)
+    if response.status_code == 200:
+        results = response.json().get('results', [])[:num_recs]
+        return results
+    return []
+
+def get_content_based_recommendations(liked_movies, num_recs=10):
+    """Get content-based recommendations based on genre, director, cast similarity"""
+    all_recommendations = []
+    
+    for name, year, rating, genre in liked_movies:
+        # Search for the movie to get its details
+        search_url = f"{TMDB_BASE_URL}/search/movie"
+        search_params = {
+            'api_key': TMDB_API_KEY,
+            'query': name,
+            'year': year
+        }
+        response = requests.get(search_url, params=search_params)
+        if response.status_code == 200:
+            results = response.json().get('results', [])
+            if results:
+                movie_id = results[0]['id']
+                
+                # Get movie details for content-based filtering
+                details_url = f"{TMDB_BASE_URL}/movie/{movie_id}"
+                details_response = requests.get(details_url, params={'api_key': TMDB_API_KEY})
+                if details_response.status_code == 200:
+                    movie_details = details_response.json()
+                    
+                    # Search for movies with similar genres
+                    if movie_details.get('genres'):
+                        genre_ids = [g['id'] for g in movie_details['genres']]
+                        discover_url = f"{TMDB_BASE_URL}/discover/movie"
+                        discover_params = {
+                            'api_key': TMDB_API_KEY,
+                            'with_genres': ','.join(map(str, genre_ids)),
+                            'sort_by': 'popularity.desc',
+                            'page': 1
+                        }
+                        discover_response = requests.get(discover_url, params=discover_params)
+                        if discover_response.status_code == 200:
+                            similar_movies = discover_response.json().get('results', [])[:num_recs]
+                            for movie in similar_movies:
+                                all_recommendations.append({
+                                    'Title': movie['title'],
+                                    'Year': movie['release_date'][:4] if movie['release_date'] else 'N/A',
+                                    'Overview': movie['overview'],
+                                    'TMDB Rating': movie['vote_average'],
+                                    'Genres': ', '.join([GENRE_MAP.get(g, 'Unknown') for g in movie.get('genre_ids', [])]),
+                                    'Based On': name,
+                                    'Method': 'Content-Based (Genre)'
+                                })
+    
+    return all_recommendations
+
+def get_collaborative_recommendations(liked_movies, num_recs=10):
+    """Get collaborative filtering recommendations based on popular movies in similar genres"""
+    all_recommendations = []
+    
+    # Get popular movies in genres that user likes
+    liked_genres = set()
+    for name, year, rating, genre in liked_movies:
+        if genre:
+            liked_genres.update([g.strip() for g in genre.split(',')])
+    
+    for genre in liked_genres:
+        # Map genre name to TMDB genre ID
+        genre_id = None
+        for gid, gname in GENRE_MAP.items():
+            if gname.lower() == genre.lower():
+                genre_id = gid
+                break
+        
+        if genre_id:
+            # Get popular movies in this genre
+            discover_url = f"{TMDB_BASE_URL}/discover/movie"
+            discover_params = {
+                'api_key': TMDB_API_KEY,
+                'with_genres': str(genre_id),
+                'sort_by': 'popularity.desc',
+                'vote_count.gte': 100,  # Only popular movies
+                'page': 1
+            }
+            discover_response = requests.get(discover_url, params=discover_params)
+            if discover_response.status_code == 200:
+                popular_movies = discover_response.json().get('results', [])[:num_recs//len(liked_genres)]
+                for movie in popular_movies:
+                    all_recommendations.append({
+                        'Title': movie['title'],
+                        'Year': movie['release_date'][:4] if movie['release_date'] else 'N/A',
+                        'Overview': movie['overview'],
+                        'TMDB Rating': movie['vote_average'],
+                        'Genres': ', '.join([GENRE_MAP.get(g, 'Unknown') for g in movie.get('genre_ids', [])]),
+                        'Based On': f'Popular in {genre}',
+                        'Method': 'Collaborative (Popular)'
+                    })
+    
+    return all_recommendations
+
+def get_enhanced_recommendations(min_rating=3.5, num_recs=5, genre_filter=None, year_filter=None, min_tmdb_rating=None, recommendation_methods=None):
+    """Enhanced recommendation system combining multiple approaches like Likewise"""
+    if recommendation_methods is None:
+        recommendation_methods = ['tmdb_similar', 'tmdb_recommendations', 'content_based', 'collaborative']
+    
     conn = get_connection()
     c = conn.cursor()
     
@@ -620,6 +1137,7 @@ def get_recommended_movies(min_rating=3.5, num_recs=5, genre_filter=None, year_f
     all_recommendations = []
     
     for name, year, rating, genre in liked_movies:
+        # Search for the movie to get its TMDB ID
         search_url = f"{TMDB_BASE_URL}/search/movie"
         search_params = {
             'api_key': TMDB_API_KEY,
@@ -631,33 +1149,63 @@ def get_recommended_movies(min_rating=3.5, num_recs=5, genre_filter=None, year_f
             results = response.json().get('results', [])
             if results:
                 movie_id = results[0]['id']
-                rec_url = f"{TMDB_BASE_URL}/movie/{movie_id}/recommendations"
-                rec_params = {
-                    'api_key': TMDB_API_KEY,
-                    'page': 1
-                }
-                rec_response = requests.get(rec_url, params=rec_params)
-                if rec_response.status_code == 200:
-                    recs = rec_response.json().get('results', [])[:num_recs]
-                    for rec in recs:
-                        rec_title = rec['title'].lower()
+                
+                # Get recommendations using different methods
+                if 'tmdb_similar' in recommendation_methods:
+                    similar_movies = get_tmdb_similar_movies(movie_id, num_recs)
+                    for movie in similar_movies:
+                        rec_title = movie['title'].lower()
                         if rec_title not in watched_titles:
-                            # Apply TMDB rating filter
-                            if min_tmdb_rating and rec['vote_average'] < min_tmdb_rating:
+                            if min_tmdb_rating and movie['vote_average'] < min_tmdb_rating:
                                 continue
-                            
                             all_recommendations.append({
-                                'Title': rec['title'],
-                                'Year': rec['release_date'][:4] if rec['release_date'] else 'N/A',
-                                'Overview': rec['overview'],
-                                'TMDB Rating': rec['vote_average'],
-                                'Genres': ', '.join([GENRE_MAP.get(g, 'Unknown') for g in rec.get('genre_ids', [])]),
-                                'Based On': name
+                                'Title': movie['title'],
+                                'Year': movie['release_date'][:4] if movie['release_date'] else 'N/A',
+                                'Overview': movie['overview'],
+                                'TMDB Rating': movie['vote_average'],
+                                'Genres': ', '.join([GENRE_MAP.get(g, 'Unknown') for g in movie.get('genre_ids', [])]),
+                                'Based On': name,
+                                'Method': 'TMDB Similar'
+                            })
+                
+                if 'tmdb_recommendations' in recommendation_methods:
+                    rec_movies = get_tmdb_recommendations(movie_id, num_recs)
+                    for movie in rec_movies:
+                        rec_title = movie['title'].lower()
+                        if rec_title not in watched_titles:
+                            if min_tmdb_rating and movie['vote_average'] < min_tmdb_rating:
+                                continue
+                            all_recommendations.append({
+                                'Title': movie['title'],
+                                'Year': movie['release_date'][:4] if movie['release_date'] else 'N/A',
+                                'Overview': movie['overview'],
+                                'TMDB Rating': movie['vote_average'],
+                                'Genres': ', '.join([GENRE_MAP.get(g, 'Unknown') for g in movie.get('genre_ids', [])]),
+                                'Based On': name,
+                                'Method': 'TMDB Recommendations'
                             })
     
-    unique_recs = {rec['Title']: rec for rec in all_recommendations}
-    return pd.DataFrame(list(unique_recs.values())[:15])  # Return more recommendations
+    # Add content-based and collaborative recommendations
+    if 'content_based' in recommendation_methods:
+        content_recs = get_content_based_recommendations(liked_movies, num_recs)
+        all_recommendations.extend(content_recs)
+    
+    if 'collaborative' in recommendation_methods:
+        collab_recs = get_collaborative_recommendations(liked_movies, num_recs)
+        all_recommendations.extend(collab_recs)
+    
+    # Remove duplicates and filter out watched movies
+    unique_recs = {}
+    for rec in all_recommendations:
+        rec_title = rec['Title'].lower()
+        if rec_title not in watched_titles and rec_title not in unique_recs:
+            unique_recs[rec_title] = rec
+    
+    return pd.DataFrame(list(unique_recs.values())[:20])  # Return more diverse recommendations
 
+def get_recommended_movies(min_rating=3.5, num_recs=5, genre_filter=None, year_filter=None, min_tmdb_rating=None):
+    """Original recommendation function - now uses enhanced system"""
+    return get_enhanced_recommendations(min_rating, num_recs, genre_filter, year_filter, min_tmdb_rating)
 # NEW: Functions for adding movies
 def search_tmdb_movie(title, year=None):
     """Search TMDB for a movie and return detailed information"""
@@ -868,22 +1416,45 @@ def edit_movie_in_csv(movie_name, movie_year, new_data):
         return False
 
 # Streamlit app
-st.markdown('<div class="tab-container">', unsafe_allow_html=True)
-
 # Initialize database if needed
 init_database()
 
-# Global region selection for watch providers
-st.markdown('<div class="search-container">', unsafe_allow_html=True)
-watch_region_name = st.selectbox("🌍 Select Region for Watch Providers", list(COUNTRY_MAP.values()), index=0, key="watch_region_select")
-watch_region_code = next((code for code, name in COUNTRY_MAP.items() if name == watch_region_name), 'US')
-st.session_state['watch_region'] = watch_region_code
-WATCH_PROVIDERS = get_watch_providers(watch_region_code)
-st.markdown('</div>', unsafe_allow_html=True)
+# Sidebar for navigation
+with st.sidebar:
+    st.markdown("""
+    <div style="text-align: center; margin-bottom: 1rem;">
+        <h2 style="
+            color: #E50914; 
+            margin: 0; 
+            font-size: 1.8rem; 
+            font-weight: 900;
+            font-family: 'Helvetica Neue', 'Arial Black', 'Impact', Arial, sans-serif;
+            letter-spacing: -1px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        ">🎬 NEXTFLICK</h2>
+        <p style="color: #FFFFFF; margin: 0.2rem 0; font-size: 0.9rem;">Movie Database</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Navigation menu
+    page = st.radio(
+        "Navigate to:",
+        ["🎬 My Collection", "🔍 Search My Movies", "📊 Rating Analysis", "🌐 Discover Movies", "💡 Recommendations", "➕ Add Movie", "✏️ Edit Movies", "📄 CSV Management"],
+        key="navigation"
+    )
+    
+    st.markdown("---")
+    
+    # Global region selection for watch providers
+    st.markdown("**🌍 Watch Region:**")
+    watch_region_name = st.selectbox("Watch Region", list(COUNTRY_MAP.values()), index=0, key="watch_region_select", label_visibility="collapsed")
+    watch_region_code = next((code for code, name in COUNTRY_MAP.items() if name == watch_region_name), 'US')
+    st.session_state['watch_region'] = watch_region_code
+    WATCH_PROVIDERS = get_watch_providers(watch_region_code)
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(["🎬 My Collection", "🔍 Search My Movies", "📊 Rating Analysis", "🌐 Discover Movies", "💡 Recommendations", "➕ Add Movie", "✏️ Edit Movies", "📄 CSV Management"])
-
-with tab1:
+# Main content area
+if page == "🎬 My Collection":
     st.markdown('<div class="search-container">', unsafe_allow_html=True)
     st.header("🎬 My Movie Collection")
     df = fetch_all_movies()
@@ -895,7 +1466,7 @@ with tab1:
         st.info("No movies in your collection yet. Add some movies using the 'Add Movie' tab!")
     st.markdown('</div>', unsafe_allow_html=True)
 
-with tab2:
+elif page == "🔍 Search My Movies":
     st.markdown('<div class="search-container">', unsafe_allow_html=True)
     st.header("🔍 Search My Movies")
     
@@ -929,7 +1500,7 @@ with tab2:
             st.info("No movies found matching your criteria.")
     st.markdown('</div>', unsafe_allow_html=True)
 
-with tab3:
+elif page == "📊 Rating Analysis":
     st.markdown('<div class="search-container">', unsafe_allow_html=True)
     st.header("📊 Rating Analysis")
     st.write("Compare your ratings with professional critics")
@@ -942,7 +1513,7 @@ with tab3:
         st.info("No rating comparisons available. Add more movies with external ratings.")
     st.markdown('</div>', unsafe_allow_html=True)
 
-with tab4:
+elif page == "🌐 Discover Movies":
     st.markdown('<div class="search-container">', unsafe_allow_html=True)
     st.header("🌐 Discover Movies")
     st.write("Search external movie databases (TMDB/IMDB)")
@@ -982,14 +1553,40 @@ with tab4:
             st.info("No results found. Try adjusting your search criteria.")
     st.markdown('</div>', unsafe_allow_html=True)
 
-with tab5:
+elif page == "💡 Recommendations":
     st.markdown('<div class="search-container">', unsafe_allow_html=True)
-    st.header("💡 Movie Recommendations")
-    st.write("Get personalized recommendations based on your highly rated movies")
+    st.header("💡 Enhanced Movie Recommendations")
+    st.write("Get personalized recommendations using multiple algorithms like Likewise, TMDB, and collaborative filtering")
     
+    # Recommendation method selection
+    st.subheader("🎯 Recommendation Methods")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        use_tmdb_similar = st.checkbox("🔗 TMDB Similar Movies", value=True, help="Movies similar to your favorites")
+        use_tmdb_recommendations = st.checkbox("⭐ TMDB Recommendations", value=True, help="TMDB's algorithm recommendations")
+    
+    with col2:
+        use_content_based = st.checkbox("🎭 Content-Based Filtering", value=True, help="Based on genre, director, cast similarity")
+        use_collaborative = st.checkbox("👥 Collaborative Filtering", value=True, help="Popular movies in your favorite genres")
+    
+    # Build recommendation methods list
+    recommendation_methods = []
+    if use_tmdb_similar:
+        recommendation_methods.append('tmdb_similar')
+    if use_tmdb_recommendations:
+        recommendation_methods.append('tmdb_recommendations')
+    if use_content_based:
+        recommendation_methods.append('content_based')
+    if use_collaborative:
+        recommendation_methods.append('collaborative')
+    
+    st.markdown("---")
+    
+    # Filter options
     col1, col2 = st.columns(2)
     rec_min_rating = col1.number_input("⭐ Min Rating for Liked Movies", value=3.5, min_value=0.0, max_value=5.0, step=0.5)
-    rec_num = col2.number_input("📊 Number of Recs per Movie", value=5, min_value=1, max_value=10)
+    rec_num = col2.number_input("�� Number of Recs per Method", value=5, min_value=1, max_value=10)
     
     col1, col2 = st.columns(2)
     rec_genre_filter = col1.text_input("🎭 Genre Filter", placeholder="e.g., Action, Drama...")
@@ -997,17 +1594,34 @@ with tab5:
     
     rec_min_tmdb_rating = st.number_input("⭐ Min TMDB Rating", value=None, min_value=0.0, max_value=10.0, step=0.1, help="Filter recommendations by minimum TMDB rating")
     
-    if st.button("🎯 Generate Recommendations", type="primary"):
-        rec_df = get_recommended_movies(rec_min_rating, rec_num, rec_genre_filter, rec_year_filter, rec_min_tmdb_rating)
-        if not rec_df.empty:
-            st.dataframe(rec_df, use_container_width=True)
-            csv = rec_df.to_csv(index=False).encode('utf-8')
-            st.download_button("📥 Download Recommendations", csv, "recommended_movies.csv", "text/csv")
+    if st.button("🎯 Generate Enhanced Recommendations", type="primary"):
+        if not recommendation_methods:
+            st.warning("⚠️ Please select at least one recommendation method.")
         else:
-            st.info("No recommendations found. Try adjusting the filters or add more highly rated movies to your collection.")
+            with st.spinner("🎯 Analyzing your preferences with multiple algorithms..."):
+                rec_df = get_enhanced_recommendations(
+                    rec_min_rating, rec_num, rec_genre_filter, rec_year_filter, 
+                    rec_min_tmdb_rating, recommendation_methods
+                )
+            
+            if not rec_df.empty:
+                st.success(f"✅ Generated {len(rec_df)} personalized recommendations using {len(recommendation_methods)} methods!")
+                
+                # Show method breakdown (Algorithm transparency)
+                if 'Method' in rec_df.columns:
+                    method_counts = rec_df['Method'].value_counts()
+                    st.write("**📊 Recommendation Methods Used:**")
+                    for method, count in method_counts.items():
+                        st.write(f"• {method}: {count} movies")
+                
+                st.dataframe(rec_df, use_container_width=True)
+                csv = rec_df.to_csv(index=False).encode('utf-8')
+                st.download_button("📥 Download Enhanced Recommendations", csv, "enhanced_recommendations.csv", "text/csv")
+            else:
+                st.info("ℹ️ No recommendations found. Try adjusting the filters or add more highly rated movies to your collection.")
     st.markdown('</div>', unsafe_allow_html=True)
 
-with tab6:
+elif page == "➕ Add Movie":
     st.markdown('<div class="search-container">', unsafe_allow_html=True)
     st.header("➕ Add New Movie")
     st.write("Add a movie to your database. Just provide the title and year - we'll fill in the rest!")
@@ -1141,7 +1755,7 @@ with tab6:
                     st.warning("Please fill in at least title and year.")
     st.markdown('</div>', unsafe_allow_html=True)
 
-with tab7:
+elif page == "✏️ Edit Movies":
     st.markdown('<div class="search-container">', unsafe_allow_html=True)
     st.header("✏️ Edit Existing Movies")
     st.write("Modify existing movie entries in your database and CSV file")
@@ -1223,7 +1837,7 @@ with tab7:
         st.info("No movies found in your collection. Add some movies first using the 'Add Movie' tab.")
     st.markdown('</div>', unsafe_allow_html=True)
 
-with tab8:
+elif page == "📄 CSV Management":
     st.markdown('<div class="search-container">', unsafe_allow_html=True)
     st.header("📄 CSV Management")
     st.write("Manage your CSV file directly - view, add, edit, and sync with database")
@@ -1413,5 +2027,3 @@ with tab8:
             st.error(f"Error processing uploaded file: {e}")
     
     st.markdown('</div>', unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)
